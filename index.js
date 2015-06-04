@@ -4,6 +4,8 @@ var username = process.env.STORMPATH_API_KEY_ID,
     password = process.env.STORMPATH_API_KEY_SECRET,
     url = process.env.STORMPATH_APP_HREF + '/accounts';
 
+var concurrency = 20;
+
 function getUrl(done){
   request({url: url,auth:{username:username,password:password}}, function(err){
     if(err){
@@ -16,12 +18,12 @@ function getUrl(done){
 
 var q = async.queue(function (task, callback) {
   task(callback);
-}, 20);
+}, concurrency);
 
 
 async.forever(
   function(next) {
-    if(q.length()<20){
+    if(q.length()<concurrency){
       q.push(getUrl);
     }
     next();
